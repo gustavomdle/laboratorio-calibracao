@@ -37,7 +37,7 @@
     word-wrap: break-word;
 }
 
-#gridTodosItens {
+#gridTodosItens2 {
     word-wrap: break-word;
     overflow: auto;
     table-layout: auto !important;
@@ -67,7 +67,15 @@ input[type=number] {
     word-break: break-word
 }
 
+
+
 /*
+
+.react-bootstrap-table-pagination-list{
+    padding-left: 0px !important;
+}
+
+
 .fieldGroup-234{
     border: 0px;
 }

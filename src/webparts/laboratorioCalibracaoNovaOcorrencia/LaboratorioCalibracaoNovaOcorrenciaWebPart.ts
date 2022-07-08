@@ -21,7 +21,9 @@ export default class LaboratorioCalibracaoNovaOcorrenciaWebPart extends BaseClie
     const element: React.ReactElement<ILaboratorioCalibracaoNovaOcorrenciaProps> = React.createElement(
       LaboratorioCalibracaoNovaOcorrencia,
       {
-        description: this.properties.description
+        description: this.properties.description,
+        context: this.context,
+        siteurl: this.context.pageContext.web.absoluteUrl,
       }
     );
 
