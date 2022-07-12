@@ -9,10 +9,19 @@
           "manifest": "./src/webparts/laboratorioCalibracaoNovaOcorrencia/LaboratorioCalibracaoNovaOcorrenciaWebPart.manifest.json"
         }
       ]
+    },
+    "laboratorio-calibracao-todos-instrumentos-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/laboratorioCalibracaoTodosInstrumentos/LaboratorioCalibracaoTodosInstrumentosWebPart.js",
+          "manifest": "./src/webparts/laboratorioCalibracaoTodosInstrumentos/LaboratorioCalibracaoTodosInstrumentosWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "LaboratorioCalibracaoNovaOcorrenciaWebPartStrings": "lib/webparts/laboratorioCalibracaoNovaOcorrencia/loc/{locale}.js"
+    "LaboratorioCalibracaoNovaOcorrenciaWebPartStrings": "lib/webparts/laboratorioCalibracaoNovaOcorrencia/loc/{locale}.js",
+    "LaboratorioCalibracaoTodosInstrumentosWebPartStrings": "lib/webparts/laboratorioCalibracaoTodosInstrumentos/loc/{locale}.js"
   }
 }
