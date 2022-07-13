@@ -17,11 +17,38 @@
           "manifest": "./src/webparts/laboratorioCalibracaoTodosInstrumentos/LaboratorioCalibracaoTodosInstrumentosWebPart.manifest.json"
         }
       ]
+    },
+    "laboratorio-calibracao-exibir-instrumentos-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/laboratorioCalibracaoExibirInstrumentos/LaboratorioCalibracaoExibirInstrumentosWebPart.js",
+          "manifest": "./src/webparts/laboratorioCalibracaoExibirInstrumentos/LaboratorioCalibracaoExibirInstrumentosWebPart.manifest.json"
+        }
+      ]
+    },
+    "laboratorio-calibracao-editar-instrumentos-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/laboratorioCalibracaoEditarInstrumentos/LaboratorioCalibracaoEditarInstrumentosWebPart.js",
+          "manifest": "./src/webparts/laboratorioCalibracaoEditarInstrumentos/LaboratorioCalibracaoEditarInstrumentosWebPart.manifest.json"
+        }
+      ]
+    },
+    "laboratorio-calibracao-novo-instrumento-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/laboratorioCalibracaoNovoInstrumento/LaboratorioCalibracaoNovoInstrumentoWebPart.js",
+          "manifest": "./src/webparts/laboratorioCalibracaoNovoInstrumento/LaboratorioCalibracaoNovoInstrumentoWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
     "LaboratorioCalibracaoNovaOcorrenciaWebPartStrings": "lib/webparts/laboratorioCalibracaoNovaOcorrencia/loc/{locale}.js",
-    "LaboratorioCalibracaoTodosInstrumentosWebPartStrings": "lib/webparts/laboratorioCalibracaoTodosInstrumentos/loc/{locale}.js"
+    "LaboratorioCalibracaoTodosInstrumentosWebPartStrings": "lib/webparts/laboratorioCalibracaoTodosInstrumentos/loc/{locale}.js",
+    "LaboratorioCalibracaoExibirInstrumentosWebPartStrings": "lib/webparts/laboratorioCalibracaoExibirInstrumentos/loc/{locale}.js",
+    "LaboratorioCalibracaoEditarInstrumentosWebPartStrings": "lib/webparts/laboratorioCalibracaoEditarInstrumentos/loc/{locale}.js",
+    "LaboratorioCalibracaoNovoInstrumentoWebPartStrings": "lib/webparts/laboratorioCalibracaoNovoInstrumento/loc/{locale}.js"
   }
 }

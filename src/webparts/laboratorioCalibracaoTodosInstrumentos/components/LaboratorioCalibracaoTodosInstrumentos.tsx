@@ -5,6 +5,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import * as jQuery from "jquery";
 import { Web } from "sp-pnp-js";
 import BootstrapTable from 'react-bootstrap-table-next';
+import "bootstrap";
 
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
@@ -20,6 +21,7 @@ require("../../../../css/estilos.css");
 
 var _web;
 var _grupos;
+var _idParaExcluir;
 
 export interface IShowEmployeeStates {
   employeeList: any[]
@@ -104,6 +106,7 @@ const empTablecolumns = [
     formatter: (rowContent, row) => {
       var dataVencimento = new Date(row.Vencimento);
       var dtDataEntregaPropostaCliente = ("0" + dataVencimento.getDate()).slice(-2) + '/' + ("0" + (dataVencimento.getMonth() + 1)).slice(-2) + '/' + dataVencimento.getFullYear();
+      if (dtDataEntregaPropostaCliente == "31/12/1969") dtDataEntregaPropostaCliente = "";
       return dtDataEntregaPropostaCliente;
     }
   },
@@ -124,30 +127,32 @@ const empTablecolumns = [
   {
     dataField: "",
     text: "",
-    headerStyle: { "backgroundColor": "#bee5eb", "width": "180px" },
+    headerStyle: { "backgroundColor": "#bee5eb", "width": "200px" },
     formatter: (rowContent, row) => {
       var id = row.ID;
       var status = row.Status
-      var urlDetalhes = `Instrumento-Detalhes.aspx?PropostasID=` + id;
-      var urlEditar = `Instrumento-Editar.aspx?PropostasID=` + id;
+      var urlDetalhes = `Instrumento-Detalhes.aspx?InstrumentoID=` + id;
+      var urlEditar = `Instrumento-Editar.aspx?InstrumentoID=` + id;
 
-        console.log("_grupos", _grupos);
+      console.log("_grupos", _grupos);
 
-        if (_grupos.indexOf("Membros do Calibração") !== -1) {
-          return (
-            <>
-              <a href={urlDetalhes}><button className="btn btn-info btnCustom">Exibir</button></a>&nbsp;
-              <a href={urlEditar}><button className="btn btn-info btnCustom">Editar</button></a>
-            </>
-          )
-        } else {
+      if (_grupos.indexOf("Membros do Calibração") !== -1) {
+        return (
+          <>
+            <a onClick={async () => { _idParaExcluir = id; jQuery("#modalConfirmarExcluir").modal({ backdrop: 'static', keyboard: false }); }}><button className="btn btn-danger btnCustom btn-sm">Excluir</button></a>&nbsp;
+            <a href={urlEditar}><button className="btn btn-secondary btnCustom btn-sm">Editar</button></a>&nbsp;
+            <a href={urlDetalhes}><button className="btn btn-info btnCustom btn-sm">Exibir</button></a>
 
-          return (
-            <>
-              <a href={urlDetalhes}><button className="btn btn-info btnCustom">Exibir</button></a>&nbsp;
-            </>
-          )
-        }
+          </>
+        )
+      } else {
+
+        return (
+          <>
+            <a href={urlDetalhes}><button className="btn btn-info btnCustom">Exibir</button></a>
+          </>
+        )
+      }
 
     }
   }
@@ -160,7 +165,7 @@ const paginationOptions = {
   hidePageListOnlyOnePage: true
 };
 
-export default class LaboratorioCalibracaoTodosInstrumentos extends React.Component<ILaboratorioCalibracaoTodosInstrumentosProps,IShowEmployeeStates> {
+export default class LaboratorioCalibracaoTodosInstrumentos extends React.Component<ILaboratorioCalibracaoTodosInstrumentosProps, IShowEmployeeStates> {
 
   constructor(props: ILaboratorioCalibracaoTodosInstrumentosProps) {
     super(props);
@@ -170,6 +175,15 @@ export default class LaboratorioCalibracaoTodosInstrumentos extends React.Compon
   }
 
   public async componentDidMount() {
+
+    document
+      .getElementById("btnExcluirInstrumento")
+      .addEventListener("click", (e: Event) => this.excluirInstrumento());
+
+    document
+      .getElementById("btnSucesso")
+      .addEventListener("click", (e: Event) => this.fecharSucesso());
+
 
     _web = new Web(this.props.context.pageContext.web.absoluteUrl);
 
@@ -210,16 +224,16 @@ export default class LaboratorioCalibracaoTodosInstrumentos extends React.Compon
     })
 
 
-    var reactHandlerRepresentante = this;
+    var reactHandler = this;
 
     jQuery.ajax({
-      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$top=4999&$orderby= ID desc&$select=Title,Fabricante/Title,Modelo,Status/Title,Filial/Title,Tecnico,Status_x0020_do_x0020_Vencimento,nrCertificado,Resolucao,Vencimento,DataAfericao&$expand=Filial,Fabricante,Status`,
+      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$top=4999&$orderby= ID desc&$select=ID,Title,Fabricante/Title,Modelo,Status/Title,Filial/Title,Tecnico,Status_x0020_do_x0020_Vencimento,nrCertificado,Resolucao,Vencimento,DataAfericao&$expand=Filial,Fabricante,Status`,
       type: "GET",
       headers: { 'Accept': 'application/json; odata=verbose;' },
       success: function (resultData) {
-        console.log("resultData",resultData);
+        console.log("resultData", resultData);
         jQuery('#txtCountProposta').html(resultData.d.results.length);
-        reactHandlerRepresentante.setState({
+        reactHandler.setState({
           employeeList: resultData.d.results
         });
       },
@@ -239,9 +253,72 @@ export default class LaboratorioCalibracaoTodosInstrumentos extends React.Compon
       <><p>Resultado: <span className="text-info" id="txtCountProposta"></span> proposta(s) encontrada(s)</p>
         <div className={styles.container}>
           <BootstrapTable bootstrap4 responsive condensed hover={true} className="gridTodosItens" id="gridTodosItens" keyField='id' data={this.state.employeeList} columns={empTablecolumns} headerClasses="header-class" pagination={paginationFactory(paginationOptions)} filter={filterFactory()} />
-        </div></>
+        </div>
+
+        <div className="modal fade" id="modalConfirmarExcluir" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="exampleModalLabel">Confirmação</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                Deseja realmente excluir o Instrumento?
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnExcluirInstrumento" type="button" className="btn btn-primary">Excluir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal fade" id="modalSucesso" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="exampleModalLabel">Alerta</h5>
+              </div>
+              <div className="modal-body">
+                Instrumento excluido com sucesso!
+              </div>
+              <div className="modal-footer">
+                <button type="button" id="btnSucesso" className="btn btn-primary">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </>
 
 
     );
+  }
+
+  protected async excluirInstrumento() {
+
+
+    const list = _web.lists.getByTitle("Instrumento");
+    await list.items.getById(_idParaExcluir).recycle()
+      .then(async response => {
+        console.log("Item excluido!");
+        jQuery("#modalConfirmarExcluir").modal('hide');
+        jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+      })
+      .catch((error: any) => {
+        console.log(error);
+
+      })
+
+  }
+
+
+  protected fecharSucesso() {
+
+    jQuery("#modalConfirmarExcluir").modal('hide');
+    window.location.href = `Instrumentos.aspx`;
+
   }
 }

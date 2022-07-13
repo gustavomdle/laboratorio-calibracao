@@ -1,6 +1,6 @@
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
-export interface ILaboratorioCalibracaoNovaOcorrenciaProps {
+export interface ILaboratorioCalibracaoExibirInstrumentosProps {
   description: string;
   context: WebPartContext;
   siteurl: string;

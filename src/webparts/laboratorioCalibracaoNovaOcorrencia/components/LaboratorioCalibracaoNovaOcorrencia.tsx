@@ -271,7 +271,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
         </div>
 
         <div className="form-group transferirCACoutraFilial">
-          <label htmlFor="ddlTipoOcorrencia">Enviar para filial</label><span className="required"> *</span>
+          <label htmlFor="ddlFilial">Enviar para filial</label><span className="required"> *</span>
           <select id="ddlFilial" className="form-control" style={{ "width": "300px" }}>
             <option value="0" selected>Selecione...</option>
             {this.state.itemsFilial.map(function (item, key) {

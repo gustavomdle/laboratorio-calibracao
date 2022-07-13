@@ -37,10 +37,14 @@
     word-wrap: break-word;
 }
 
-#gridTodosItens2 {
+#gridTodosItens {
     word-wrap: break-word;
     overflow: auto;
     table-layout: auto !important;
+}
+
+#gridOcorrenciaPorCAC {
+    width: 1500px;
 }
 
 .btnCustom{
@@ -71,7 +75,12 @@ input[type=number] {
     display: none;
 }
 
+.conteudoTabela{
+    overflow-x:auto;
+}
+
 /*
+
 
 .react-bootstrap-table-pagination-list{
     padding-left: 0px !important;
