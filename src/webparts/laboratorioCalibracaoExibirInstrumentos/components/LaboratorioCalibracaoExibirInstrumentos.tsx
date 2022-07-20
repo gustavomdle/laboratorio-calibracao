@@ -41,6 +41,35 @@ const empTablecolumns = [
     filter: customFilter
   },
   {
+    dataField: "TipoDeOcorrencia.Title",
+    text: "TipoDeOcorrencia",
+    headerStyle: { backgroundColor: '#bee5eb' },
+    sort: true,
+    classes: 'text-center',
+    filter: customFilter
+  },
+  {
+    dataField: "Author.Title",
+    text: "Criado por",
+    headerStyle: { backgroundColor: '#bee5eb' },
+    sort: true,
+    classes: 'text-center',
+    filter: customFilter
+  },
+  {
+    dataField: "Created",
+    text: "Criado",
+    headerStyle: { backgroundColor: '#bee5eb' },
+    sort: true,
+    classes: 'text-center',
+    filter: customFilter,
+    formatter: (rowContent, row) => {
+      var dataCriado = new Date(row.Created);
+      var dtDataEntregaPropostaCliente = ("0" + dataCriado.getDate()).slice(-2) + '/' + ("0" + (dataCriado.getMonth() + 1)).slice(-2) + '/' + dataCriado.getFullYear();
+      return dtDataEntregaPropostaCliente;
+    }
+  },
+  {
     dataField: "Filial.Title",
     text: "Filial",
     headerStyle: { backgroundColor: '#bee5eb' },
@@ -106,7 +135,7 @@ const empTablecolumns = [
     formatter: (rowContent, row) => {
       var dataVencimento = new Date(row.Vencimento);
       var dtDataEntregaPropostaCliente = ("0" + dataVencimento.getDate()).slice(-2) + '/' + ("0" + (dataVencimento.getMonth() + 1)).slice(-2) + '/' + dataVencimento.getFullYear();
-      if(dtDataEntregaPropostaCliente == "31/12/1969") dtDataEntregaPropostaCliente = ""
+      if (dtDataEntregaPropostaCliente == "31/12/1969") dtDataEntregaPropostaCliente = ""
       return dtDataEntregaPropostaCliente;
     }
   },
@@ -140,7 +169,7 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
 
 
   public render(): React.ReactElement<ILaboratorioCalibracaoExibirInstrumentosProps> {
-    
+
     return (
 
 
@@ -237,16 +266,17 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
             </div>
           </div>
         </div>
-
-        <p>Resultado: <span className="text-info" id="txtCountProposta"></span> proposta(s) encontrada(s)</p>
+        <br></br>
+        <h3>Ocorrências</h3>
+        <p>Resultado: <span className="text-info" id="txtCountProposta"></span> ocorrência(s) encontrada(s)</p>
         <div className='conteudoTabela'>
-        <BootstrapTable bootstrap4 condensed hover={true} className="gridOcorrenciaPorCAC" id="gridOcorrenciaPorCAC" keyField='id' data={this.state.employeeList} columns={empTablecolumns} headerClasses="header-class" pagination={paginationFactory(paginationOptions)} filter={filterFactory()} />
+          <BootstrapTable bootstrap4 condensed hover={true} className="gridOcorrenciaPorCAC" id="gridOcorrenciaPorCAC" keyField='id' data={this.state.employeeList} columns={empTablecolumns} headerClasses="header-class" pagination={paginationFactory(paginationOptions)} filter={filterFactory()} />
         </div>
 
 
       </div>
-      
-      <br></br><>
+
+        <br></br><>
           <div className={styles.container}>
           </div></></>
 
@@ -330,20 +360,19 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
   }
 
 
-  protected getOcorrencia(cac){
+  protected getOcorrencia(cac) {
 
-    console.log("cac",cac);
+    console.log("cac", cac);
 
     var reactHandler = this;
 
     jQuery.ajax({
-      //url: `${this.props.siteurl}/_api/web/lists/getbytitle('Ocorrencia')/items?$top=4999&$orderby= ID desc&$select=ID,Title,Filial/Title,FilialFinal/Title,TecInicial,TecFinal,StatusInicial/Title,StatusFinal/Title,nrCertificado,Vencimento&$expand=Filial,FilialFinal,StatusInicial,StatusFinal&$filter=CAC eq '000000'`,
-      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Ocorrencia')/items?$top=4999&$&$select=ID,Title,Filial/Title,FilialFinal/Title,TecInicial,TecFinal,StatusInicial/Title,StatusFinal/Title,nrCertificado,Vencimento&$expand=Filial,FilialFinal,StatusInicial,StatusFinal&$filter=CAC eq '${cac}'`,
+      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Ocorrencia')/items?$top=4999&$&$select=ID,Title,Filial/Title,FilialFinal/Title,TecInicial,TecFinal,StatusInicial/Title,StatusFinal/Title,nrCertificado,Vencimento,TipoDeOcorrencia/Title,Author/Title,Created&$expand=Filial,FilialFinal,StatusInicial,StatusFinal,TipoDeOcorrencia,Author&$filter=CAC eq '${cac}'&$orderby= ID desc`,
       type: "GET",
       async: false,
       headers: { 'Accept': 'application/json; odata=verbose;' },
       success: function (resultData) {
-        console.log("resultData3",resultData);
+        console.log("resultData3", resultData);
         jQuery('#txtCountProposta').html(resultData.d.results.length);
         reactHandler.setState({
           employeeList: resultData.d.results

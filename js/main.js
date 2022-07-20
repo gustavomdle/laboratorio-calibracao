@@ -1,5 +1,7 @@
 export default function MontaPaginacao(container, holder, paginacao) {
 
+  console.log("container: " + container);
+  console.log("holder: " + holder);
   console.log("paginacao: " + paginacao);
 
   $("#holder").jPages({
@@ -46,9 +48,15 @@ export default function MontaPaginacao(container, holder, paginacao) {
 
 
   function Plugin(element, options) {
+
+    console.log("entrou...");
+
     this.options = $.extend({}, defaults, options);
 
     this._container = $("#" + this.options.containerID);
+
+    console.log("!this._container.length",!this._container.length);
+
     if (!this._container.length) return;
 
     this.jQwindow = $(window);

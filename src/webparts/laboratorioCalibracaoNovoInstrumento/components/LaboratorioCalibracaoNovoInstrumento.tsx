@@ -11,6 +11,7 @@ require("../../../../node_modules/bootstrap/dist/css/bootstrap.min.css");
 require("../../../../css/estilos.css");
 
 var _web;
+var _IDstatusNovoInstrumento;
 
 export interface IReactGetItemsState {
   itemsFabricante: [
@@ -265,6 +266,25 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
       }
     });
 
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$filter= Title eq 'Novo Instrumento'`,
+      type: "GET",
+      headers: { 'Accept': 'application/json; odata=verbose;' },
+      success: function (resultData) {
+
+        for (var i = 0; i < resultData.d.results.length; i++) {
+
+          _IDstatusNovoInstrumento = resultData.d.results[i].ID;
+          console.log("_IDstatusNovoInstrumento",_IDstatusNovoInstrumento);
+
+        }
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
 
 
   }
@@ -324,20 +344,20 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
 
     var cac = jQuery("#txtCAC").val();
     var fabricante = jQuery("#ddlFabricante").val();
-    if(fabricante == 0) fabricante = null;
+    if (fabricante == 0) fabricante = null;
     var modelo = jQuery("#txtModelo").val();
     var resolucao = jQuery("#txtResolucao").val();
     var descricao = jQuery("#txtDescricao").val();
 
     var filial = jQuery("#ddlFilial").val();
-    if(filial == 0) filial = null;
+    if (filial == 0) filial = null;
 
     var numeroSerie = jQuery("#txtNumeroSerie").val();
     var tipoInstrumento = jQuery("#ddlTipoInstrumento").val();
-    if(tipoInstrumento == 0) tipoInstrumento = null;
+    if (tipoInstrumento == 0) tipoInstrumento = null;
     var numeroCertificado = jQuery("#nroNumeroCertificado").val();
     var diasProximaAfericao = jQuery("#nroDiasProximaAfericao").val();
-    if(diasProximaAfericao == "") diasProximaAfericao = null;
+    if (diasProximaAfericao == "") diasProximaAfericao = null;
 
     var dataAfericao = "" + jQuery("#dtDataAfericao-label").val() + "";
     var dataAfericaoDia = dataAfericao.substring(0, 2);
@@ -347,7 +367,7 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
 
     if (dataAfericao == "") formdataAfericao = null;
 
-    var numero = jQuery("#txtNumero").val();
+    //var numero = jQuery("#txtNumero").val();
 
     await _web.lists
       .getByTitle("Instrumento")
@@ -362,13 +382,25 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
         TipoDeInstrumentoId: tipoInstrumento,
         nrCertificado: numeroCertificado,
         DataAfericao: formdataAfericao,
-        //DiasProximaAfericao: diasProximaAfericao,
+        DiasProximaAfericao: diasProximaAfericao,
+        StatusId: _IDstatusNovoInstrumento
       })
       .then(async response => {
 
-        console.log("gravou!!");
-        jQuery("#modalConfirmar").modal('hide');
-        jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+        await _web.lists
+        .getByTitle("HistoricoInstrumento")
+        .items.add({
+          Title: cac,
+          StatusId: _IDstatusNovoInstrumento,
+        })
+        .then(async response => {
+
+          console.log("gravou!!");
+          jQuery("#modalConfirmar").modal('hide');
+          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+
+          })
+
 
       })
       .catch((error: any) => {

@@ -250,7 +250,7 @@ export default class LaboratorioCalibracaoTodosInstrumentos extends React.Compon
     return (
 
 
-      <><p>Resultado: <span className="text-info" id="txtCountProposta"></span> proposta(s) encontrada(s)</p>
+      <><p>Resultado: <span className="text-info" id="txtCountProposta"></span> instrumento(s) encontrado(s)</p>
         <div className={styles.container}>
           <BootstrapTable bootstrap4 responsive condensed hover={true} className="gridTodosItens" id="gridTodosItens" keyField='id' data={this.state.employeeList} columns={empTablecolumns} headerClasses="header-class" pagination={paginationFactory(paginationOptions)} filter={filterFactory()} />
         </div>

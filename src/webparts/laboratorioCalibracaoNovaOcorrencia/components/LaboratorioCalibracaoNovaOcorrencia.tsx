@@ -2,11 +2,8 @@ import * as React from 'react';
 import styles from './LaboratorioCalibracaoNovaOcorrencia.module.scss';
 import { ILaboratorioCalibracaoNovaOcorrenciaProps } from './ILaboratorioCalibracaoNovaOcorrenciaProps';
 import { escape } from '@microsoft/sp-lodash-subset';
-import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import * as jQuery from "jquery";
 import { allowOverscrollOnElement, DatePicker } from 'office-ui-fabric-react';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
 import "bootstrap";
 import { Web } from 'sp-pnp-js';
 import { faArrowLeftRotate } from '@fortawesome/free-solid-svg-icons';
@@ -14,6 +11,11 @@ import * as Moment from 'moment';
 
 require("../../../../node_modules/bootstrap/dist/css/bootstrap.min.css");
 require("../../../../css/estilos.css");
+require("../../../../css/jPages.css");
+
+require("../../../../js/jquery-1.8.2.min.js");
+require("../../../../js/highlight.pack.js");
+require("../../../../js/tabifier.js");
 
 var _web;
 var _idFilial;
@@ -26,10 +28,8 @@ var _numeroCertificado;
 var _dataAfericao;
 var _dataVencimento;
 var _tecnico;
+var _linha = "";
 
-export interface IShowEmployeeStates {
-  itemsTecnicos: any[]
-}
 
 export interface IReactGetItemsState {
   itemsTipoOcorrencia: [
@@ -42,80 +42,10 @@ export interface IReactGetItemsState {
       "ID": any,
       "Title": any,
     }],
-  itemsTecnicos: []
+
 
 
 }
-
-
-const empTablecolumns = [
-  {
-    dataField: "codigo_tec",
-    text: "CODIGO_TEC",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-    classes: 'text-center',
-  },
-  {
-    dataField: "cod_filial",
-    text: "COD_FILIAL",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-    classes: 'text-center',
-  },
-  {
-    dataField: "Title",
-    text: "TITLE",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-  },
-  {
-    dataField: "cargo",
-    text: "CARGO",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-  },
-  {
-    dataField: "setor",
-    text: "SETOR",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-  },
-  {
-    dataField: "cod_estab",
-    text: "COD_ESTAB",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-    classes: 'text-center',
-  },
-  {
-    dataField: "",
-    text: "",
-    headerStyle: { "backgroundColor": "#bee5eb", "text-align": "center" },
-    sort: true,
-    classes: 'text-center',
-    formatter: (rowContent, row) => {
-
-      console.log("row", row);
-
-      return (
-        <>
-          <button data-dismiss="modal" onClick={() => { $("#txtTecnico").val(row.Title); $("#txtTecnicoCodTecnico").val(row.codigo_tec); $("#txtTecnicoCodFilial").val(row.cod_filial); $("#txtTecnicoCargo").val(row.cargo); $("#txtTecnicoCodEmitente").val(row.cod_emitente); $("#txtTecnicoEstabelecimento ").val(row.cod_estab); $("#modalTecnicos").modal('hide'); }} className="btn-info btn-sm">Escolher</button>
-        </>
-      )
-
-    }
-  },
-
-
-]
-
-
-const paginationOptions = {
-  sizePerPage: 5,
-  hideSizePerPage: true,
-  hidePageListOnlyOnePage: true
-};
 
 
 export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component<ILaboratorioCalibracaoNovaOcorrenciaProps, IReactGetItemsState> {
@@ -135,7 +65,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
           "ID": "",
           "Title": "",
         }],
-      itemsTecnicos: []
+
 
     };
   }
@@ -324,7 +254,31 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <BootstrapTable bootstrap4 responsive condensed hover={true} keyField='id' data={this.state.itemsTecnicos} columns={empTablecolumns} headerClasses="header-class" pagination={paginationFactory(paginationOptions)} filter={filterFactory()} />
+
+              <div id="conteudo_grid">
+                <div className="table-responsive">
+                  <table className="table table-hover">
+                    <thead className="thead-light ">
+                      <tr>
+                        <th>CODIGO TEC</th>
+                        <th>COD FILIAL</th>
+                        <th>NOME TEC</th>
+                        <th>CARGO</th>
+                        <th>SETOR</th>
+                        <th>COD ESTAB</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="conteudoTabela">
+                    </tbody>
+                  </table>
+                </div>
+                <hr />
+                <div id="holder" className="holder">
+                </div>
+              </div>
+
+
             </div>
           </div>
         </div>
@@ -374,14 +328,24 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
       </div>
 
+
+
       </>
 
 
     );
+
+
+
+    function AlertMe() {
+
+      alert("You have clicked Alert!");
+    }
   }
 
 
   protected handler() {
+
 
     var reactHandlerTipoOcorrencia = this;
 
@@ -426,13 +390,17 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
       success: function (resultData) {
         jQuery('#txtCountProposta').html(resultData.d.results.length);
         reactHandlerRepresentante.setState({
-          itemsTecnicos: resultData.d.results
+          //itemsTecnicos: resultData.d.results
         });
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.responseText);
       }
     });
+
+
+    this.carregaTecnicos();
+
 
   }
 
@@ -562,12 +530,12 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
             for (var i = 0; i < resultData.d.results.length; i++) {
 
-              console.log(resultData.d.results[i].Title);
+              // console.log(resultData.d.results[i].Title);
               _idInstrumento = resultData.d.results[i].ID;
               _idFilial = resultData.d.results[i].Filial.ID;
               var statusInstrumento = resultData.d.results[i].Status.Title;
 
-              console.log("statusInstrumento", statusInstrumento);
+              //console.log("statusInstrumento", statusInstrumento);
 
               if (tipoOcorrencia == "Cancelar Ocorrencia") {
 
@@ -618,7 +586,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
                     var responsavelTitle = resultData.d.results[i].Responsavel.Title;
 
-                    console.log("_grupos", _grupos);
+                    //console.log("_grupos", _grupos);
 
                     if (_grupos.indexOf("Membros do Calibração") == -1) {
 
@@ -676,14 +644,6 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
   }
 
-  protected fecharSucesso() {
-
-    jQuery("#modalSucesso").modal('hide');
-    window.location.href = `Nova-ocorrencia.aspx`;
-
-  }
-
-
   protected async criarOcorrencia() {
 
     jQuery("#btnCriarOcorrencia").prop("disabled", true);
@@ -737,20 +697,20 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
     var tecnicoCodEmitente = jQuery("#txtTecnicoCodEmitente").val();
     var tecnicoEstabelecimento = jQuery("#txtTecnicoEstabelecimento").val();
 
-    console.log("numero", numero);
-    console.log("cac", cac);
-    console.log("tipoOcorrencia", tipoOcorrencia);
-    console.log("txtObservacao", txtObservacao);
-    console.log("numeroCertificado", numeroCertificado);
-    console.log("formdataAfericao", formdataAfericao);
-    console.log("formdataVencimento", formdataVencimento);
-    console.log("filial", filial);
-    console.log("tecnico", tecnico);
-    console.log("tecnicoCodTecnico", tecnicoCodTecnico);
-    console.log("tecnicoCodFilial", tecnicoCodFilial);
-    console.log("tecnicoCargo", tecnicoCargo);
-    console.log("tecnicoCodEmitente", tecnicoCodEmitente);
-    console.log("tecnicoEstabelecimento", tecnicoEstabelecimento);
+    // console.log("numero", numero);
+    // console.log("cac", cac);
+    //  console.log("tipoOcorrencia", tipoOcorrencia);
+    //  console.log("txtObservacao", txtObservacao);
+    //  console.log("numeroCertificado", numeroCertificado);
+    //  console.log("formdataAfericao", formdataAfericao);
+    // console.log("formdataVencimento", formdataVencimento);
+    //   console.log("filial", filial);
+    //  console.log("tecnico", tecnico);
+    //  console.log("tecnicoCodTecnico", tecnicoCodTecnico);
+    //  console.log("tecnicoCodFilial", tecnicoCodFilial);
+    //  console.log("tecnicoCargo", tecnicoCargo);
+    //  console.log("tecnicoCodEmitente", tecnicoCodEmitente);
+    //  console.log("tecnicoEstabelecimento", tecnicoEstabelecimento);
 
     await _web.lists
       .getByTitle("Ocorrencia")
@@ -859,9 +819,30 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     })
                     .then(async response => {
 
-                      console.log("gravou!!");
-                      jQuery("#modalConfirmar").modal('hide');
-                      jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+
+                      await _web.lists
+                        .getByTitle("Instrumento")
+                        .items.getById(_idInstrumento).update({
+                          StatusId: statusId,
+                        })
+                        .then(async response => {
+
+                          await _web.lists
+                            .getByTitle("HistoricoInstrumento")
+                            .items.add({
+                              Title: cac,
+                              StatusId: statusId,
+                            })
+                            .then(async response => {
+
+                              console.log("gravou!!");
+                              jQuery("#modalConfirmar").modal('hide');
+                              jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                            })
+
+
+                        })
+
 
                     })
 
@@ -902,9 +883,18 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     })
                     .then(async response => {
 
-                      console.log("gravou!!");
-                      jQuery("#modalConfirmar").modal('hide');
-                      jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                      await _web.lists
+                        .getByTitle("HistoricoInstrumento")
+                        .items.add({
+                          Title: cac,
+                          StatusId: statusId,
+                        })
+                        .then(async response => {
+
+                          console.log("gravou!!");
+                          jQuery("#modalConfirmar").modal('hide');
+                          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                        })
 
                     })
 
@@ -918,7 +908,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
             }
           });
 
-          
+
 
 
         }
@@ -944,9 +934,18 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     })
                     .then(async response => {
 
-                      console.log("gravou!!");
-                      jQuery("#modalConfirmar").modal('hide');
-                      jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                      await _web.lists
+                        .getByTitle("HistoricoInstrumento")
+                        .items.add({
+                          Title: cac,
+                          StatusId: statusId,
+                        })
+                        .then(async response => {
+
+                          console.log("gravou!!");
+                          jQuery("#modalConfirmar").modal('hide');
+                          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                        })
 
                     })
 
@@ -964,7 +963,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
         }
 
 
-        else if(tipoOcorrencia == "Reparo"){
+        else if (tipoOcorrencia == "Reparo") {
 
           jQuery.ajax({
             url: `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'Enviado para calibração'`,
@@ -985,9 +984,18 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     })
                     .then(async response => {
 
-                      console.log("gravou!!");
-                      jQuery("#modalConfirmar").modal('hide');
-                      jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                      await _web.lists
+                        .getByTitle("HistoricoInstrumento")
+                        .items.add({
+                          Title: cac,
+                          StatusId: statusId,
+                        })
+                        .then(async response => {
+
+                          console.log("gravou!!");
+                          jQuery("#modalConfirmar").modal('hide');
+                          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                        })
 
                     })
 
@@ -1016,17 +1024,28 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
                   var statusId = resultData.d.results[i].ID;
 
+                  console.log("filial",filial);
+
                   await _web.lists
                     .getByTitle("Instrumento")
                     .items.getById(_idInstrumento).update({
-                      FilialFinalId: _idFilial,
+                      FilialId: filial,
                       StatusId: statusId,
                     })
                     .then(async response => {
 
-                      console.log("gravou!!");
-                      jQuery("#modalConfirmar").modal('hide');
-                      jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                      await _web.lists
+                        .getByTitle("HistoricoInstrumento")
+                        .items.add({
+                          Title: cac,
+                          StatusId: statusId,
+                        })
+                        .then(async response => {
+
+                          console.log("gravou!!");
+                          jQuery("#modalConfirmar").modal('hide');
+                          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+                        })
 
                     })
 
@@ -1043,10 +1062,6 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
         }
 
-
-
-
-
       })
       .catch((error: any) => {
         console.log(error);
@@ -1056,5 +1071,336 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
   }
 
 
+  protected carregaTecnicos() {
+
+    //BDC_TECNICOS!A2|G501
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A2|G501')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        // console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+            (function(){ 
+              $('#txtTecnico').val('${arr.rows[i][3].v}') 
+              $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+              $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+              $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+              $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+              $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+
+            })();return false;"
+            className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+    //BDC_TECNICOS!A502|G1001
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A502|G1001')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        // console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+            (function(){ 
+              $('#txtTecnico').val('${arr.rows[i][3].v}') 
+              $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+              $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+              $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+              $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+              $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+
+            })();return false;"
+            className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+
+    //BDC_TECNICOS!A1002|G1501
+
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A1002|G1501')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        // console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+            (function(){ 
+              $('#txtTecnico').val('${arr.rows[i][3].v}') 
+              $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+              $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+              $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+              $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+              $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+
+            })();return false;"
+            className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+
+    //BDC_TECNICOS!A1502|G2001
+
+
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A1502|G2001')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        // console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+            (function(){ 
+              $('#txtTecnico').val('${arr.rows[i][3].v}') 
+              $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+              $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+              $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+              $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+              $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+
+            })();return false;"
+            className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+    //BDC_TECNICOS!A2002|G2501
+
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A2002|G2501')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        // console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+            (function(){ 
+              $('#txtTecnico').val('${arr.rows[i][3].v}') 
+              $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+              $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+              $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+              $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+              $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+
+            })();return false;"
+            className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+
+    //BDC_TECNICOS!A2502|G3001
+
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A2502|G3001')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        // console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+            (function(){ 
+              $('#txtTecnico').val('${arr.rows[i][3].v}') 
+              $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+              $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+              $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+              $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+              $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+
+            })();return false;"
+            className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+
+    //BDC_TECNICOS!A3002|G3501
+
+
+    jQuery.ajax({
+      url: `${this.props.siteurl}/_vti_bin/ExcelRest.aspx/Shared%20Documents/BDC_TECNICOS.xlsx/model/Ranges('BDC_TECNICOS!A3002|G3501')?$format=json&$top=5$orderby=NOME TEC`,
+      type: "GET",
+      headers: { "Accept": "application/json; odata=verbose" },
+      dataType: "json",
+      async: false,
+      success: function (data) {
+
+        var arr = data;
+
+        //  console.log("arr", arr);
+
+        var tamArray = arr.rows.length;
+
+        for (var i = 0; i < tamArray; i++) {
+
+          if (arr.rows[i][3].v != undefined) {
+
+            _linha += `<tr class="gradeC" ><td>${arr.rows[i][0].v}</td><td>${arr.rows[i][2].v}</td><td>${arr.rows[i][3].v}</td><td>${arr.rows[i][4].v}</td><td>${arr.rows[i][5].v}</td><td>${arr.rows[i][6].v}</td><td><button data-dismiss="modal" onClick="
+                (function(){ 
+                  $('#txtTecnico').val('${arr.rows[i][3].v}') 
+                  $('#txtTecnicoCodTecnico').val('${arr.rows[i][0].v}') 
+                  $('#txtTecnicoCodFilial').val('${arr.rows[i][2].v}')
+                  $('#txtTecnicoCargo').val('${arr.rows[i][4].v}')
+                  $('#txtTecnicoCodEmitente').val('${arr.rows[i][1].v}') 
+                  $('#txtTecnicoEstabelecimento').val('${arr.rows[i][6].v}')
+    
+                })();return false;"
+                className="btn-info btn-sm border-0">Escolher</button></td></tr>`;
+
+          }
+
+        }
+
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+      }
+    });
+
+    //  console.log("linha", _linha);
+    jQuery("#conteudoTabela").append(_linha);
+
+  }
+
+  protected fecharSucesso() {
+
+    jQuery("#modalSucesso").modal('hide');
+    window.location.href = `Nova-ocorrencia.aspx`;
+
+  }
 
 }
