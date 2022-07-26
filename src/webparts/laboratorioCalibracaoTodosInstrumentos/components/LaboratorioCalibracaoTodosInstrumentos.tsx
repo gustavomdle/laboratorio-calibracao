@@ -127,7 +127,7 @@ const empTablecolumns = [
   {
     dataField: "",
     text: "",
-    headerStyle: { "backgroundColor": "#bee5eb", "width": "200px" },
+    headerStyle: { "backgroundColor": "#bee5eb" },
     formatter: (rowContent, row) => {
       var id = row.ID;
       var status = row.Status
@@ -136,13 +136,14 @@ const empTablecolumns = [
 
       console.log("_grupos", _grupos);
 
-      if (_grupos.indexOf("Membros do Calibração") !== -1) {
+      if (_grupos.indexOf("Proprietários do Calibração") !== -1) {
         return (
           <>
-            <a onClick={async () => { _idParaExcluir = id; jQuery("#modalConfirmarExcluir").modal({ backdrop: 'static', keyboard: false }); }}><button className="btn btn-danger btnCustom btn-sm">Excluir</button></a>&nbsp;
-            <a href={urlEditar}><button className="btn btn-secondary btnCustom btn-sm">Editar</button></a>&nbsp;
-            <a href={urlDetalhes}><button className="btn btn-info btnCustom btn-sm">Exibir</button></a>
-
+            <div style={{ "width": "190px" }}>
+              <a onClick={async () => { _idParaExcluir = id; jQuery("#modalConfirmarExcluir").modal({ backdrop: 'static', keyboard: false }); }}><button className="btn btn-danger btnCustom btn-sm">Excluir</button></a>&nbsp;
+              <a href={urlEditar}><button className="btn btn-secondary btnCustom btn-sm">Editar</button></a>&nbsp;
+              <a href={urlDetalhes}><button className="btn btn-info btnCustom btn-sm">Exibir</button></a>
+            </div>
           </>
         )
       } else {

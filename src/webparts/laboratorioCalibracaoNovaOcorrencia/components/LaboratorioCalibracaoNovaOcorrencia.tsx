@@ -74,6 +74,8 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
     _web = new Web(this.props.context.pageContext.web.absoluteUrl);
 
+    $("#conteudo_grid").hide();
+
     _web.currentUser.get().then(f => {
 
       console.log("f", f);
@@ -278,6 +280,15 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                 </div>
               </div>
 
+              <div id='conteudoCarregando' className='text-center'>
+                <br></br>
+                <button className="btn btn-primary" type="button" disabled>
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  &nbsp;Carregando...aguarde!
+                </button>
+                <br></br><br></br>
+              </div>
+
 
             </div>
           </div>
@@ -399,7 +410,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
     });
 
 
-    this.carregaTecnicos();
+    // this.carregaTecnicos();
 
 
   }
@@ -450,7 +461,15 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
   private buscarTecnico = () => {
 
+    //jQuery("#btnBuscarTecnico").prop("disabled", true);
     jQuery("#modalTecnicos").modal({ backdrop: 'static', keyboard: false });
+
+    setTimeout(() => {
+
+      this.carregaTecnicos();
+
+    }, 1000);
+
 
   }
 
@@ -588,7 +607,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
                     //console.log("_grupos", _grupos);
 
-                    if (_grupos.indexOf("Membros do Calibração") == -1) {
+                    if (_grupos.indexOf("Proprietários do Calibração") == -1) {
 
                       alert("Você não é responsavel pela Filial!");
                       return false;
@@ -1024,7 +1043,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
                   var statusId = resultData.d.results[i].ID;
 
-                  console.log("filial",filial);
+                  console.log("filial", filial);
 
                   await _web.lists
                     .getByTitle("Instrumento")
@@ -1392,7 +1411,11 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
     });
 
     //  console.log("linha", _linha);
+    $("#conteudoCarregando").hide();
+    $("#conteudo_grid").show();
+
     jQuery("#conteudoTabela").append(_linha);
+
 
   }
 
