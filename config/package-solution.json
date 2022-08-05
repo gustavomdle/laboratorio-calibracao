@@ -3,7 +3,7 @@
   "solution": {
     "name": "laboratorio-calibracao-diebold",
     "id": "02565cbe-f4ba-486f-9759-2be27ad41c3d",
-    "version": "1.0.0.5",
+    "version": "1.0.0.7",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "developer": {

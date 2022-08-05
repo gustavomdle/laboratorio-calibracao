@@ -189,7 +189,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
         <div className="form-group certificado">
           <label htmlFor="nroNumeroCertificado">Número do Certificado</label><span className="required"> *</span>
-          <input type="number" style={{ "width": "300px" }} className="form-control" id="nroNumeroCertificado" />
+          <input type="text" style={{ "width": "300px" }} className="form-control" id="nroNumeroCertificado" />
         </div>
 
         <div className="form-group certificado">
@@ -219,6 +219,20 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
           <input type="text" className="form-control" id="txtTecnico" />
           <br></br><button id='btnBuscarTecnico' type="button" className="btn btn-info btn-sm">Buscar técnico</button>
         </div>
+
+        <div className="form-group modificarTecnicoCAC">
+
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" value="" id="checkPermitirTecnicoEmBranco" />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+              Permitir técnico em branco
+            </label>
+          </div>
+        </div>
+
+
+
+
 
         <div className="form-group hide">
           <label htmlFor="txtTecnicoCodTecnico">Código Técnico</label>
@@ -509,9 +523,13 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
             else if (txtTipoOcorrencia == "Modificar Tecnico do CAC") {
 
-              if (tecnico == "") {
-                alert("Escolha o técnico");
-                return false;
+              if (!jQuery('#checkPermitirTecnicoEmBranco').is(":checked")) {
+
+                if (tecnico == "") {
+                  alert("Escolha o técnico");
+                  return false;
+                }
+
               }
 
             }
@@ -605,10 +623,11 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
                     var responsavelTitle = resultData.d.results[i].Responsavel.Title;
 
-                    //console.log("_grupos", _grupos);
+                    console.log("_grupos", _grupos);
 
                     if (_grupos.indexOf("Proprietários do Calibração") == -1) {
 
+                      console.log("Entrou verificação 1");
                       alert("Você não é responsavel pela Filial!");
                       return false;
 
@@ -616,7 +635,11 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
                     if (!ehResponsavel) {
 
+                      console.log("Entrou verificação 2");
+
                       if (responsavelTitle != _userName) {
+
+                        console.log("Entrou verificação 3");
 
                         alert("Você não é responsavel pela Filial!");
                         return false;
@@ -716,6 +739,8 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
     var tecnicoCodEmitente = jQuery("#txtTecnicoCodEmitente").val();
     var tecnicoEstabelecimento = jQuery("#txtTecnicoEstabelecimento").val();
 
+    var observacao = jQuery("#txtObservacao").val();
+
     // console.log("numero", numero);
     // console.log("cac", cac);
     //  console.log("tipoOcorrencia", tipoOcorrencia);
@@ -753,58 +778,15 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
         var tipoOcorrencia = $('#ddlTipoOcorrencia option:selected').text();
 
-        if (tipoOcorrencia == "Cancelar Ocorrencia") {
-
-          jQuery.ajax({
-            url: `${this.props.siteurl}/_api/web/lists/getbytitle('HistoricoInstrumento')/items?$top=1&$select=ID,Title,Status/ID&$expand=Status&$filter=Title eq '` + _cac + `'&$orderby= ID`,
-            type: "GET",
-            headers: { 'Accept': 'application/json; odata=verbose;' },
-            success: async function (resultData) {
-
-              if (resultData.d.results.length > 0) {
-
-                for (var i = 0; i < resultData.d.results.length; i++) {
-
-                  var ultimoStatusInstrumento = resultData.d.results[i].Status.ID;
-
-                  console.log("ultimoStatusInstrumento", ultimoStatusInstrumento);
-
-                  await _web.lists
-                    .getByTitle("Instrumento")
-                    .items.getById(_idInstrumento).update({
-                      StatusId: ultimoStatusInstrumento,
-                    })
-                    .then(async response => {
-
-                      console.log("gravou!!");
-                      jQuery("#modalConfirmar").modal('hide');
-                      jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
-
-                    })
-
-                }
-
-              }
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log(jqXHR.responseText);
-            }
-          });
-
-
-
-
-        }
-
-        else if (tipoOcorrencia == "Certificado") {
+        if (tipoOcorrencia == "Certificado") {
 
           await _web.lists
             .getByTitle("Instrumento")
             .items.getById(_idInstrumento).update({
               nrCertificado: _numeroCertificado,
               DataAfericao: _dataAfericao,
-              Vencimento: _dataVencimento
+              Vencimento: _dataVencimento,
+              Observacao: observacao
             })
             .then(async response => {
 
@@ -813,7 +795,6 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
               jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
 
             })
-
 
         }
 
@@ -835,6 +816,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     .getByTitle("Instrumento")
                     .items.getById(_idInstrumento).update({
                       StatusId: statusId,
+                      Observacao: observacao
                     })
                     .then(async response => {
 
@@ -876,14 +858,24 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
           });
 
 
-
-
         }
 
         else if (tipoOcorrencia == "Modificar Tecnico do CAC") {
 
+          var url = "";
+
+          if (jQuery('#checkPermitirTecnicoEmBranco').is(":checked")) {
+
+            url = `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'EM ESTOQUE'`;
+
+          } else {
+
+            url = `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'Em Uso'`;
+
+          }
+
           jQuery.ajax({
-            url: `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'EM ESTOQUE'`,
+            url: url,
             type: "GET",
             headers: { 'Accept': 'application/json; odata=verbose;' },
             success: async function (resultData) {
@@ -898,58 +890,8 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     .getByTitle("Instrumento")
                     .items.getById(_idInstrumento).update({
                       StatusId: statusId,
-                      Tecnico: _tecnico
-                    })
-                    .then(async response => {
-
-                      await _web.lists
-                        .getByTitle("HistoricoInstrumento")
-                        .items.add({
-                          Title: cac,
-                          StatusId: statusId,
-                        })
-                        .then(async response => {
-
-                          console.log("gravou!!");
-                          jQuery("#modalConfirmar").modal('hide');
-                          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
-                        })
-
-                    })
-
-                }
-
-              }
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log(jqXHR.responseText);
-            }
-          });
-
-
-
-
-        }
-
-        else if (tipoOcorrencia == "Novo CAC") {
-
-          jQuery.ajax({
-            url: `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'Novo Instrumento'`,
-            type: "GET",
-            headers: { 'Accept': 'application/json; odata=verbose;' },
-            success: async function (resultData) {
-
-              if (resultData.d.results.length > 0) {
-
-                for (var i = 0; i < resultData.d.results.length; i++) {
-
-                  var statusId = resultData.d.results[i].ID;
-
-                  await _web.lists
-                    .getByTitle("Instrumento")
-                    .items.getById(_idInstrumento).update({
-                      StatusId: statusId,
+                      Tecnico: _tecnico,
+                      Observacao: observacao
                     })
                     .then(async response => {
 
@@ -980,7 +922,6 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
 
         }
-
 
         else if (tipoOcorrencia == "Reparo") {
 
@@ -1000,6 +941,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     .getByTitle("Instrumento")
                     .items.getById(_idInstrumento).update({
                       StatusId: statusId,
+                      Observacao: observacao
                     })
                     .then(async response => {
 
@@ -1032,7 +974,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
         else if (tipoOcorrencia == "Transferir CAC para outra Filial") {
 
           jQuery.ajax({
-            url: `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'Transferido para Filial'`,
+            url: `${this.props.siteurl}/_api/web/lists/getbytitle('Status')/items?$top=1&$select=ID,Title&$filter=Title eq 'EM ESTOQUE'`,
             type: "GET",
             headers: { 'Accept': 'application/json; odata=verbose;' },
             success: async function (resultData) {
@@ -1050,6 +992,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
                     .items.getById(_idInstrumento).update({
                       FilialId: filial,
                       StatusId: statusId,
+                      Observacao: observacao
                     })
                     .then(async response => {
 

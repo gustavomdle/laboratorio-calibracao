@@ -36,33 +36,25 @@ const empTablecolumns = [
     dataField: "Title",
     text: "Nro",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter
   },
   {
     dataField: "TipoDeOcorrencia.Title",
-    text: "TipoDeOcorrencia",
+    text: "Tipo",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter
   },
   {
     dataField: "Author.Title",
     text: "Criado por",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter
   },
   {
     dataField: "Created",
     text: "Criado",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter,
     formatter: (rowContent, row) => {
       var dataCriado = new Date(row.Created);
       var dtDataEntregaPropostaCliente = ("0" + dataCriado.getDate()).slice(-2) + '/' + ("0" + (dataCriado.getMonth() + 1)).slice(-2) + '/' + dataCriado.getFullYear();
@@ -73,71 +65,19 @@ const empTablecolumns = [
     dataField: "Filial.Title",
     text: "Filial",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter
   },
   {
     dataField: "FilialFinal.Title",
     text: "FilialFinal",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter
   },
   {
     dataField: "TecInicial",
     text: "TecInicial",
     headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
     classes: 'text-center',
-    filter: customFilter
-  },
-  {
-    dataField: "TecFinal",
-    text: "TecFinal",
-    headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
-    classes: 'text-center',
-    filter: customFilter
-  },
-  {
-    dataField: "StatusInicial.Title",
-    text: "StatusInicial",
-    headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
-    classes: 'text-center',
-    filter: customFilter
-  },
-  {
-    dataField: "StatusFinal.Title",
-    text: "StatusFinal",
-    headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
-    classes: 'text-center',
-    filter: customFilter
-  },
-  {
-    dataField: "nrCertificado",
-    text: "nrCertificado",
-    headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
-    classes: 'text-center',
-    filter: customFilter
-  },
-  {
-    dataField: "Vencimento",
-    text: "Vencimento",
-    headerStyle: { backgroundColor: '#bee5eb' },
-    sort: true,
-    classes: 'text-center',
-    filter: customFilter,
-    formatter: (rowContent, row) => {
-      var dataVencimento = new Date(row.Vencimento);
-      var dtDataEntregaPropostaCliente = ("0" + dataVencimento.getDate()).slice(-2) + '/' + ("0" + (dataVencimento.getMonth() + 1)).slice(-2) + '/' + dataVencimento.getFullYear();
-      if (dtDataEntregaPropostaCliente == "31/12/1969") dtDataEntregaPropostaCliente = ""
-      return dtDataEntregaPropostaCliente;
-    }
   },
 
 ]
@@ -208,8 +148,8 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
         <div className="form-group">
           <div className="form-row ">
             <div className="form-group col-md border m-1" style={{ "height": "53px" }}>
-              <label htmlFor="txtDescricao">Descrição</label><br></br>
-              <span className="text-info" id='txtDescricao'></span>
+              <label htmlFor="txtDescricao">Observação</label><br></br>
+              <span className="text-info" id='txtObservacao'></span>
             </div>
           </div>
         </div>
@@ -289,7 +229,7 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
   protected getInstrumento() {
 
     jQuery.ajax({
-      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$select=ID,Title,Fabricante/Title,Modelo,Resolucao,Status/Title,Descricao,Filial/Title,Tecnico,NumeroDeSerie,TipoDeInstrumento/Title,nrCertificado,Status_x0020_do_x0020_Vencimento,Vencimento,DataAfericao,DiasProximaAfericao&$expand=Status,Filial,Fabricante,TipoDeInstrumento&$filter=ID eq ` + _idInstrumento,
+      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$select=ID,Title,Fabricante/Title,Modelo,Resolucao,Status/Title,Descricao,Filial/Title,Tecnico,NumeroDeSerie,TipoDeInstrumento/Title,nrCertificado,Status_x0020_do_x0020_Vencimento,Vencimento,DataAfericao,DiasProximaAfericao,Observacao&$expand=Status,Filial,Fabricante,TipoDeInstrumento&$filter=ID eq ` + _idInstrumento,
       type: "GET",
       headers: { 'Accept': 'application/json; odata=verbose;' },
       async: false,
@@ -306,11 +246,11 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
             var modelo = resultData.d.results[i].Modelo;
             var resolucao = resultData.d.results[i].Resolucao;
             var status = resultData.d.results[i].Status.Title;
-            var descricao = resultData.d.results[i].Descricao;
+            var observacao = resultData.d.results[i].Observacao;
             var filial = resultData.d.results[i].Filial.Title;
             var tecnico = resultData.d.results[i].Tecnico;
             var numeroDeSerie = resultData.d.results[i].NumeroDeSerie;
-            var tipoDeInstrumento = resultData.d.results[i].TipoDeInstrumento;
+            var tipoDeInstrumento = resultData.d.results[i].TipoDeInstrumento.Title;
             var nrCertificado = resultData.d.results[i].nrCertificado;
             var statusVencimento = resultData.d.results[i].Status_x0020_do_x0020_Vencimento;
 
@@ -329,7 +269,7 @@ export default class LaboratorioCalibracaoExibirInstrumentos extends React.Compo
             jQuery("#txtModelo").html(modelo);
             jQuery("#txtResolucao").html(resolucao);
             jQuery("#txtStatus").html(status);
-            jQuery("#txtDescricao").html(descricao);
+            jQuery("#txtObservacao").html(observacao);
             jQuery("#txtFilial").html(filial);
             jQuery("#txtTecnico").html(tecnico);
             jQuery("#txtNumeroDeSerie").html(numeroDeSerie);

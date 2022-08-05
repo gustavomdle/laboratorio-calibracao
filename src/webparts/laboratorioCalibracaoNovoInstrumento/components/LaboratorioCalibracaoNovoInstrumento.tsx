@@ -86,11 +86,6 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
       <><div id="container">
 
         <div className="form-group">
-          <label htmlFor="txtCAC">CAC</label><span className="required"> *</span>
-          <input style={{ "width": "300px" }} type="number" className="form-control" id="txtCAC" />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="ddlFabricante">Fabricante</label>
           <select id="ddlFabricante" className="form-control" style={{ "width": "300px" }}>
             <option value="0" selected>Selecione...</option>
@@ -110,11 +105,6 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
         <div className="form-group">
           <label htmlFor="txtResolucao">Resolução</label>
           <input type="text" className="form-control" id="txtResolucao" />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="txtDescricao">Descrição</label>
-          <textarea id='txtDescricao' className="form-control" rows={3} required></textarea>
         </div>
 
         <div className="form-group">
@@ -144,21 +134,6 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
               );
             })}
           </select>
-        </div>
-
-        <div className="form-group certificado">
-          <label htmlFor="nroNumeroCertificado">Número do Certificado</label>
-          <input type="number" style={{ "width": "300px" }} className="form-control" id="nroNumeroCertificado" />
-        </div>
-
-        <div className="form-group certificado">
-          <label htmlFor="dtDataAfericao">Data de aferição</label>
-          <DatePicker style={{ "width": "300px" }} minDate={new Date()} formatDate={this.onFormatDate} isMonthPickerVisible={false} className="datePicker" id='dtDataAfericao' />
-        </div>
-
-        <div className="form-group certificado">
-          <label htmlFor="nroDiasProximaAfericao">Dias para próxima aferição</label>
-          <input type="text" style={{ "width": "300px" }} className="form-control" id="nroDiasProximaAfericao" />
         </div>
 
         <br></br>
@@ -275,7 +250,7 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
         for (var i = 0; i < resultData.d.results.length; i++) {
 
           _IDstatusNovoInstrumento = resultData.d.results[i].ID;
-          console.log("_IDstatusNovoInstrumento",_IDstatusNovoInstrumento);
+          console.log("_IDstatusNovoInstrumento", _IDstatusNovoInstrumento);
 
         }
 
@@ -297,43 +272,7 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
 
   protected modalConfirmar() {
 
-    var cac = jQuery("#txtCAC").val();
-
-    if (cac == "") {
-
-      alert("Forneça o CAC");
-      return false;
-
-    } else {
-
-      jQuery.ajax({
-
-        url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$top=1&$select=ID,Title&$filter=Title eq '` + cac + `'`,
-        type: "GET",
-        async: false,
-        headers: { 'Accept': 'application/json; odata=verbose;' },
-        success: async (resultData) => {
-
-          if (resultData.d.results.length > 0) {
-
-            alert("Já existe um CAC com esse número!");
-            return false;
-
-          } else {
-
-            jQuery("#modalConfirmar").modal({ backdrop: 'static', keyboard: false });
-
-
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          console.log(textStatus);
-        }
-      });
-
-
-    }
-
+    jQuery("#modalConfirmar").modal({ backdrop: 'static', keyboard: false });
 
   }
 
@@ -342,71 +281,83 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
 
     jQuery("#btnCriarInstrumento").prop("disabled", true);
 
-    var cac = jQuery("#txtCAC").val();
-    var fabricante = jQuery("#ddlFabricante").val();
-    if (fabricante == 0) fabricante = null;
-    var modelo = jQuery("#txtModelo").val();
-    var resolucao = jQuery("#txtResolucao").val();
-    var descricao = jQuery("#txtDescricao").val();
+    jQuery.ajax({
 
-    var filial = jQuery("#ddlFilial").val();
-    if (filial == 0) filial = null;
+      url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$top=1&$select=ID,Title&$orderby= Title desc`,
+      type: "GET",
+      async: false,
+      headers: { 'Accept': 'application/json; odata=verbose;' },
+      success: async (resultData) => {
 
-    var numeroSerie = jQuery("#txtNumeroSerie").val();
-    var tipoInstrumento = jQuery("#ddlTipoInstrumento").val();
-    if (tipoInstrumento == 0) tipoInstrumento = null;
-    var numeroCertificado = jQuery("#nroNumeroCertificado").val();
-    var diasProximaAfericao = jQuery("#nroDiasProximaAfericao").val();
-    if (diasProximaAfericao == "") diasProximaAfericao = null;
+        if (resultData.d.results.length > 0) {
 
-    var dataAfericao = "" + jQuery("#dtDataAfericao-label").val() + "";
-    var dataAfericaoDia = dataAfericao.substring(0, 2);
-    var dataAfericaoMes = dataAfericao.substring(3, 5);
-    var dataAfericaoAno = dataAfericao.substring(6, 10);
-    var formdataAfericao = dataAfericaoAno + "-" + dataAfericaoMes + "-" + dataAfericaoDia;
+          for (var i = 0; i < resultData.d.results.length; i++) {
 
-    if (dataAfericao == "") formdataAfericao = null;
+            var ultimoCAC = 0;
+            ultimoCAC = resultData.d.results[i].Title;
+            ultimoCAC++
+            var novoCAC = '' + ultimoCAC + '';
+            novoCAC = ('000' + novoCAC).slice(-6);
 
-    //var numero = jQuery("#txtNumero").val();
+            var cac = novoCAC;
+            var fabricante = jQuery("#ddlFabricante").val();
+            if (fabricante == 0) fabricante = null;
+            var modelo = jQuery("#txtModelo").val();
+            var resolucao = jQuery("#txtResolucao").val();
+            var descricao = jQuery("#txtDescricao").val();
+        
+            var filial = jQuery("#ddlFilial").val();
+            if (filial == 0) filial = null;
+        
+            var numeroSerie = jQuery("#txtNumeroSerie").val();
+            var tipoInstrumento = jQuery("#ddlTipoInstrumento").val();
+            if (tipoInstrumento == 0) tipoInstrumento = null;
+        
+            await _web.lists
+              .getByTitle("Instrumento")
+              .items.add({
+                Title: cac,
+                FabricanteId: fabricante,
+                Modelo: modelo,
+                Resolucao: resolucao,
+                Descricao: descricao,
+                FilialId: filial,
+                NumeroDeSerie: numeroSerie,
+                TipoDeInstrumentoId: tipoInstrumento,
+                StatusId: _IDstatusNovoInstrumento
+              })
+              .then(async response => {
+        
+                await _web.lists
+                  .getByTitle("HistoricoInstrumento")
+                  .items.add({
+                    Title: cac,
+                    StatusId: _IDstatusNovoInstrumento,
+                  })
+                  .then(async response => {
+        
+                    console.log("gravou!!");
+                    jQuery("#modalConfirmar").modal('hide');
+                    jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
+        
+                  })
+        
+        
+              })
+              .catch((error: any) => {
+                console.log(error);
+        
+              })
 
-    await _web.lists
-      .getByTitle("Instrumento")
-      .items.add({
-        Title: cac,
-        FabricanteId: fabricante,
-        Modelo: modelo,
-        Resolucao: resolucao,
-        Descricao: descricao,
-        FilialId: filial,
-        NumeroDeSerie: numeroSerie,
-        TipoDeInstrumentoId: tipoInstrumento,
-        nrCertificado: numeroCertificado,
-        DataAfericao: formdataAfericao,
-        DiasProximaAfericao: diasProximaAfericao,
-        StatusId: _IDstatusNovoInstrumento
-      })
-      .then(async response => {
+          }
 
-        await _web.lists
-        .getByTitle("HistoricoInstrumento")
-        .items.add({
-          Title: cac,
-          StatusId: _IDstatusNovoInstrumento,
-        })
-        .then(async response => {
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(textStatus);
+      }
+    });
 
-          console.log("gravou!!");
-          jQuery("#modalConfirmar").modal('hide');
-          jQuery("#modalSucesso").modal({ backdrop: 'static', keyboard: false });
-
-          })
-
-
-      })
-      .catch((error: any) => {
-        console.log(error);
-
-      })
 
   }
 

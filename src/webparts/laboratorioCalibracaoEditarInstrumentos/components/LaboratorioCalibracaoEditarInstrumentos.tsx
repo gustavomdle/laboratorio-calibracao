@@ -100,8 +100,8 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
       <><div id="container">
 
         <div className="form-group">
-          <label htmlFor="txtCAC">CAC</label><span className="required"> *</span>
-          <input style={{ "width": "300px" }} type="number" className="form-control" id="txtCAC" />
+          <label htmlFor="txtCAC">CAC</label><span className="required"> *</span><br></br>
+          <span className='text-info' id="txtCAC"></span>
         </div>
 
         <div className="form-group">
@@ -124,11 +124,6 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
         <div className="form-group">
           <label htmlFor="txtResolucao">Resolução</label>
           <input type="text" className="form-control" id="txtResolucao" />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="txtDescricao">Descrição</label>
-          <textarea id='txtDescricao' className="form-control" rows={3} required></textarea>
         </div>
 
         <div className="form-group">
@@ -159,21 +154,6 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
               );
             })}
           </select>
-        </div>
-
-        <div className="form-group certificado">
-          <label htmlFor="nroNumeroCertificado">Número do Certificado</label>
-          <input type="number" style={{ "width": "300px" }} className="form-control" id="nroNumeroCertificado" />
-        </div>
-
-        <div className="form-group certificado">
-          <label htmlFor="dtDataAfericao">Data de aferição</label>
-          <DatePicker style={{ "width": "300px" }} value={_dataAfericao} minDate={new Date()} formatDate={this.onFormatDate} isMonthPickerVisible={false} className="datePicker" id='dtDataAfericao' />
-        </div>
-
-        <div className="form-group certificado">
-          <label htmlFor="nroDiasProximaAfericao">Dias para próxima aferição</label>
-          <input type="text" style={{ "width": "300px" }} className="form-control" id="nroDiasProximaAfericao" />
         </div>
 
         <br></br>
@@ -332,16 +312,14 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
             _valorCacAntigo = cac;
             var modelo = resultData.d.results[i].Modelo;
             var resolucao = resultData.d.results[i].Resolucao;
-            var descricao = resultData.d.results[i].Descricao;
             var numeroDeSerie = resultData.d.results[i].NumeroDeSerie;
             var diasProximaAfericao = resultData.d.results[i].DiasProximaAfericao;
             var numeroCertificado = resultData.d.results[i].nrCertificado;
             var dataAfericao = resultData.d.results[i].DataAfericao;
 
-            jQuery("#txtCAC").val(cac);
+            jQuery("#txtCAC").html(cac);
             jQuery("#txtModelo").val(modelo);
             jQuery("#txtResolucao").val(resolucao);
-            jQuery("#txtDescricao").val(descricao);
             jQuery("#txtNumeroSerie").val(numeroDeSerie);
             jQuery("#nroDiasProximaAfericao").val(diasProximaAfericao);
             jQuery("#nroNumeroCertificado").val(numeroCertificado);
@@ -400,51 +378,7 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
 
   protected modalConfirmar() {
 
-    var cac = jQuery("#txtCAC").val();
-
-    if (cac == "") {
-
-      alert("Forneça o CAC");
-      return false;
-
-    } else {
-
-      jQuery.ajax({
-
-        url: `${this.props.siteurl}/_api/web/lists/getbytitle('Instrumento')/items?$top=1&$select=ID,Title&$filter=Title eq '` + cac + `'`,
-        type: "GET",
-        async: false,
-        headers: { 'Accept': 'application/json; odata=verbose;' },
-        success: async (resultData) => {
-
-          if (resultData.d.results.length > 0) {
-
-            if (cac != _valorCacAntigo) {
-
-              alert("Já existe um CAC com esse número!");
-              return false;
-
-            } else {
-
-              jQuery("#modalConfirmar").modal({ backdrop: 'static', keyboard: false });
-
-            }
-
-          } else {
-
-            jQuery("#modalConfirmar").modal({ backdrop: 'static', keyboard: false });
-
-
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          console.log(textStatus);
-        }
-      });
-
-
-    }
-
+    jQuery("#modalConfirmar").modal({ backdrop: 'static', keyboard: false });
 
   }
 
@@ -452,12 +386,10 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
 
     jQuery("#btnEditarInstrumento").prop("disabled", true);
 
-    var cac = jQuery("#txtCAC").val();
     var fabricante = jQuery("#ddlFabricante").val();
     if (fabricante == 0) fabricante = null;
     var modelo = jQuery("#txtModelo").val();
     var resolucao = jQuery("#txtResolucao").val();
-    var descricao = jQuery("#txtDescricao").val();
 
     var filial = jQuery("#ddlFilial").val();
     if (filial == 0) filial = null;
@@ -481,16 +413,12 @@ export default class LaboratorioCalibracaoEditarInstrumentos extends React.Compo
     await _web.lists
       .getByTitle("Instrumento")
       .items.getById(_idInstrumento).update({
-        Title: cac,
         FabricanteId: fabricante,
         Modelo: modelo,
         Resolucao: resolucao,
-        Descricao: descricao,
         FilialId: filial,
         NumeroDeSerie: numeroSerie,
         TipoDeInstrumentoId: tipoInstrumento,
-        nrCertificado: numeroCertificado,
-        DataAfericao: formdataAfericao,
       })
       .then(async response => {
 
