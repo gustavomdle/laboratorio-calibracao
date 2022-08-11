@@ -194,12 +194,12 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
 
         <div className="form-group certificado">
           <label htmlFor="dtDataAfericao">Data de aferição</label><span className="required"> *</span>
-          <DatePicker style={{ "width": "300px" }} minDate={new Date()} formatDate={this.onFormatDate} isMonthPickerVisible={false} className="datePicker" id='dtDataAfericao' />
+          <DatePicker style={{ "width": "300px" }} formatDate={this.onFormatDate} className="datePicker" id='dtDataAfericao' />
         </div>
 
         <div className="form-group certificado">
           <label htmlFor="dtDataVencimento">Vencimento</label><span className="required"> *</span>
-          <DatePicker style={{ "width": "300px" }} minDate={new Date()} formatDate={this.onFormatDate} isMonthPickerVisible={false} className="datePicker" id='dtDataVencimento' />
+          <DatePicker style={{ "width": "300px" }} minDate={new Date()} formatDate={this.onFormatDate} className="datePicker" id='dtDataVencimento' />
         </div>
 
         <div className="form-group transferirCACoutraFilial">
@@ -217,7 +217,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
         <div className="form-group modificarTecnicoCAC">
           <label htmlFor="txtTecnico">Nome Técnico</label><span className="required"> *</span>
           <input type="text" className="form-control" id="txtTecnico" />
-          <br></br><button id='btnBuscarTecnico' type="button" className="btn btn-info btn-sm">Buscar técnico</button>
+          <br></br><button id='btnBuscarTecnico' type="button" className="btn btn-info btn-sm">Selecionar técnico</button>
         </div>
 
         <div className="form-group modificarTecnicoCAC">
@@ -265,7 +265,7 @@ export default class LaboratorioCalibracaoNovaOcorrencia extends React.Component
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel">Buscar técnico</h5>
+                <h5 className="modal-title" id="exampleModalLabel">Selecionar técnico</h5>
                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>

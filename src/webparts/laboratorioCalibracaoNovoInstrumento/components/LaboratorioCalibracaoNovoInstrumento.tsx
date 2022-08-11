@@ -121,7 +121,7 @@ export default class LaboratorioCalibracaoNovoInstrumento extends React.Componen
 
         <div className="form-group">
           <label htmlFor="txtNumeroSerie">Número de série</label>
-          <input style={{ "width": "300px" }} type="number" className="form-control" id="txtNumeroSerie" />
+          <input style={{ "width": "300px" }} type="text" className="form-control" id="txtNumeroSerie" />
         </div>
 
         <div className="form-group">
